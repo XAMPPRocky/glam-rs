@@ -4,11 +4,11 @@ use core::{cmp::Ordering, hash};
 use core::{fmt, ops::*};
 
 macro_rules! impl_vec2mask {
-    ($vec2mask:ident, $inner:ident) => {
+    ($vec2mask:ident, $t:ty, $inner:ident) => {
         impl Default for $vec2mask {
             #[inline]
             fn default() -> Self {
-                Self(XYU32::FALSE)
+                Self($inner::FALSE)
             }
         }
 
@@ -41,6 +41,7 @@ macro_rules! impl_vec2mask {
                 self.as_ref().hash(state);
             }
         }
+
         impl $vec2mask {
             /// Creates a new `$vec2mask`.
             #[inline]
@@ -139,7 +140,7 @@ macro_rules! impl_vec2mask {
             }
         }
 
-        impl From<$vec2mask> for [u32; 2] {
+        impl From<$vec2mask> for [$t; 2] {
             #[inline]
             fn from(mask: $vec2mask) -> Self {
                 *mask.as_ref()
@@ -153,21 +154,27 @@ macro_rules! impl_vec2mask {
             }
         }
 
-        impl AsRef<[u32; 2]> for $vec2mask {
+        impl AsRef<[$t; 2]> for $vec2mask {
             #[inline]
-            fn as_ref(&self) -> &[u32; 2] {
-                unsafe { &*(self as *const Self as *const [u32; 2]) }
+            fn as_ref(&self) -> &[$t; 2] {
+                unsafe { &*(self as *const Self as *const [$t; 2]) }
             }
         }
     };
 }
 
 type XYU32 = XY<u32>;
+type XYU64 = XY<u64>;
 
 #[cfg(not(doc))]
 #[derive(Clone, Copy)]
 #[repr(C)]
 pub struct Vec2Mask(pub(crate) XYU32);
+
+#[cfg(not(doc))]
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct DVec2Mask(pub(crate) XYU64);
 
 /// A 2-dimensional vector mask.
 ///
@@ -177,4 +184,5 @@ pub struct Vec2Mask(pub(crate) XYU32);
 #[repr(C)]
 pub struct Vec2Mask(u32, u32);
 
-impl_vec2mask!(Vec2Mask, XYU32);
+impl_vec2mask!(Vec2Mask, u32, XYU32);
+// impl_vec2mask!(DVec2Mask, u64, XYU64);
