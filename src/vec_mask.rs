@@ -131,6 +131,12 @@ macro_rules! impl_vecnmask_traits {
 #[macro_use]
 macro_rules! impl_vec2mask {
     ($vec2mask:ident, $t:ty, $inner:ident) => {
+
+        #[cfg(not(doc))]
+        #[derive(Clone, Copy)]
+        #[repr(C)]
+        pub struct $vec2mask(pub(crate) $inner);
+
         impl $vec2mask {
             /// Creates a new vector mask.
             #[inline]
@@ -176,6 +182,12 @@ macro_rules! impl_vec2mask {
 #[macro_use]
 macro_rules! impl_vec3mask {
     ($vec3mask:ident, $t:ty, $inner:ident) => {
+
+        #[cfg(not(doc))]
+        #[derive(Clone, Copy)]
+        #[repr(C)]
+        pub struct $vec3mask(pub(crate) $inner);
+
         impl $vec3mask {
             /// Creates a new vector mask.
             #[inline]
@@ -228,6 +240,12 @@ macro_rules! impl_vec3mask {
 #[macro_use]
 macro_rules! impl_vec4mask {
     ($vec4mask:ident, $t:ty, $inner:ident) => {
+
+        #[cfg(not(doc))]
+        #[derive(Clone, Copy)]
+        #[repr(C)]
+        pub struct $vec4mask(pub(crate) $inner);
+
         impl $vec4mask {
             /// Creates a new vector mask.
             #[inline]
@@ -290,16 +308,11 @@ macro_rules! impl_vec4mask {
 
 type XYU32 = crate::XY<u32>;
 
-#[cfg(not(doc))]
-#[derive(Clone, Copy)]
-#[repr(C)]
-pub struct Vec2Mask(pub(crate) XYU32);
-
 /// A 2-dimensional vector mask.
 ///
 /// This type is typically created by comparison methods on `Vec2`.
 #[cfg(doc)]
-#[derive(Clone, Copy, Default, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Copy)]
 #[repr(C)]
 pub struct Vec2Mask(u32, u32);
 
@@ -311,6 +324,7 @@ impl_vec2mask!(Vec2Mask, u32, XYU32);
 type XYZU32 = crate::XYZ<u32>;
 
 /// A 3-dimensional vector mask.
+#[cfg(doc)]
 #[derive(Clone, Copy)]
 #[repr(C)]
 pub struct Vec3Mask(pub(crate) XYZU32);
@@ -325,20 +339,8 @@ impl_vec3mask!(Vec3Mask, u32, XYZU32);
 /// This type is typically created by comparison methods on `Vec3A`.  It is essentially a vector of
 /// three boolean values.
 #[cfg(doc)]
-#[repr(align(16), C)]
+#[repr(C)]
 pub struct Vec3AMask(u32, u32, u32);
-
-#[cfg(not(doc))]
-#[cfg(all(target_feature = "sse2", not(feature = "scalar-math")))]
-#[derive(Clone, Copy)]
-#[repr(align(16), C)]
-pub struct Vec3AMask(pub(crate) __m128);
-
-#[cfg(not(doc))]
-#[cfg(any(not(target_feature = "sse2"), feature = "scalar-math"))]
-#[derive(Clone, Copy)]
-#[repr(align(16), C)]
-pub struct Vec3AMask(pub(crate) XYZU32);
 
 #[cfg(all(target_feature = "sse2", not(feature = "scalar-math")))]
 impl_vec3mask!(Vec3AMask, u32, __m128);
@@ -348,7 +350,6 @@ impl_vec3mask!(Vec3AMask, u32, XYZU32);
 
 // Vec4Mask ///////////////////////////////////////////////////////////////////////////////////////
 
-#[cfg(any(not(target_feature = "sse2"), feature = "scalar-math"))]
 type XYZWU32 = crate::XYZW<u32>;
 
 /// A 4-dimensional vector mask.
@@ -359,20 +360,30 @@ type XYZWU32 = crate::XYZW<u32>;
 #[repr(C)]
 pub struct Vec4Mask(u32, u32, u32, u32);
 
-#[cfg(not(doc))]
-#[cfg(all(target_feature = "sse2", not(feature = "scalar-math")))]
-#[derive(Clone, Copy)]
-#[repr(C)]
-pub struct Vec4Mask(pub(crate) __m128);
-
-#[cfg(not(doc))]
-#[cfg(any(not(target_feature = "sse2"), feature = "scalar-math"))]
-#[derive(Clone, Copy)]
-#[repr(C)]
-pub struct Vec4Mask(pub(crate) XYZWU32);
-
 #[cfg(all(target_feature = "sse2", not(feature = "scalar-math")))]
 impl_vec4mask!(Vec4Mask, u32, __m128);
 
 #[cfg(any(not(target_feature = "sse2"), feature = "scalar-math"))]
 impl_vec4mask!(Vec4Mask, u32, XYZWU32);
+
+/// A 2-dimensional vector mask.
+#[cfg(doc)]
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct DVec2Mask(pub(crate) XYU32);
+
+/// A 3-dimensional vector mask.
+#[cfg(doc)]
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct DVec3Mask(pub(crate) XYZU32);
+
+/// A 4-dimensional vector mask.
+#[cfg(doc)]
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct DVec4Mask(pub(crate) XYZWU32);
+
+impl_vec2mask!(DVec2Mask, u32, XYU32);
+impl_vec3mask!(DVec3Mask, u32, XYZU32);
+impl_vec4mask!(DVec4Mask, u32, XYZWU32);

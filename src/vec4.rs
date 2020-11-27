@@ -3,6 +3,7 @@ use num_traits::Float;
 
 use crate::vector_traits::*;
 
+use crate::{DVec2, DVec3, DVec4Mask};
 use crate::{Vec2, Vec3, Vec3A, Vec4Mask, XYZW};
 use core::{fmt, ops::*};
 
@@ -24,33 +25,8 @@ use std::iter::{Product, Sum};
 
 use core::{cmp::Ordering, f32};
 
-#[cfg(not(doc))]
-#[cfg(all(target_feature = "sse2", not(feature = "scalar-math")))]
-#[derive(Clone, Copy)]
-#[repr(C)]
-pub struct Vec4(pub(crate) __m128);
-
-#[cfg(not(doc))]
-#[cfg(any(not(target_feature = "sse2"), feature = "scalar-math"))]
-#[derive(Clone, Copy)]
-#[repr(C)]
-pub struct Vec4(pub(crate) XYZWF32);
-
-/// A 4-dimensional vector.
-///
-/// This type is 16 byte aligned unless the `scalar-math` feature is enabed.
-#[cfg(doc)]
-#[derive(Clone, Copy, PartialEq, PartialOrd, Default)]
-#[repr(C)]
-pub struct Vec4 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
-}
-
 macro_rules! impl_vec4 {
-    ($new:ident, $vec4:ident, $t:ty, $mask:ident, $inner:ident) => {
+    ($new:ident, $vec2:ident, $vec3:ident, $vec4:ident, $t:ty, $mask:ident, $inner:ident) => {
         impl Default for $vec4 {
             #[inline]
             fn default() -> Self {
@@ -88,7 +64,7 @@ macro_rules! impl_vec4 {
 
         /// Creates a `$vec4`.
         #[inline]
-        pub fn vec4(x: $t, y: $t, z: $t, w: $t) -> $vec4 {
+        pub fn $new(x: $t, y: $t, z: $t, w: $t) -> $vec4 {
             $vec4::new(x, y, z, w)
         }
 
@@ -157,9 +133,8 @@ macro_rules! impl_vec4 {
             ///
             /// To truncate to `Vec3A` use `Vec3A::from()`.
             #[inline]
-            pub fn truncate(self) -> Vec3 {
-                // TODO: $inner truncate
-                Vec3::new(self.x, self.y, self.z)
+            pub fn truncate(self) -> $vec3 {
+                $vec3::new(self.x, self.y, self.z)
             }
 
             /// Computes the 4D dot product of `self` and `other`.
@@ -633,17 +608,7 @@ macro_rules! impl_vec4 {
             }
         }
 
-        impl From<$vec4> for Vec3A {
-            /// Creates a `Vec3` from the `x`, `y` and `z` elements of the `$vec4`, discarding `z`.
-            ///
-            /// On architectures where SIMD is supported such as SSE2 on x86_64 this conversion is a noop.
-            #[inline]
-            fn from(v: $vec4) -> Self {
-                Self(v.0.into())
-            }
-        }
-
-        impl From<$vec4> for Vec3 {
+        impl From<$vec4> for $vec3 {
             /// Creates a `Vec3` from the `x`, `y` and `z` elements of the `$vec4`, discarding `z`.
             #[inline]
             fn from(v: $vec4) -> Self {
@@ -651,7 +616,7 @@ macro_rules! impl_vec4 {
             }
         }
 
-        impl From<$vec4> for Vec2 {
+        impl From<$vec4> for $vec2 {
             /// Creates a `Vec2` from the `x` and `y` elements of the `$vec4`, discarding `z`.
             #[inline]
             fn from(v: $vec4) -> Self {
@@ -696,14 +661,69 @@ macro_rules! impl_vec4 {
     };
 }
 
-#[cfg(all(target_feature = "sse2", not(feature = "scalar-math")))]
-impl_vec4!(vec4, Vec4, f32, Vec4Mask, __m128);
+/// A 4-dimensional `f32` vector.
+///
+/// This type is 16 byte aligned unless the `scalar-math` feature is enabed.
+#[cfg(doc)]
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct Vec4 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
+}
 
 #[cfg(any(not(target_feature = "sse2"), feature = "scalar-math"))]
 type XYZWF32 = XYZW<f32>;
 
+#[cfg(not(doc))]
 #[cfg(any(not(target_feature = "sse2"), feature = "scalar-math"))]
-impl_vec4!(vec4, Vec4, f32, Vec4Mask, XYZWF32);
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct Vec4(pub(crate) XYZWF32);
+
+#[cfg(any(not(target_feature = "sse2"), feature = "scalar-math"))]
+impl_vec4!(vec4, Vec2, Vec3, Vec4, f32, Vec4Mask, XYZWF32);
+
+#[cfg(not(doc))]
+#[cfg(all(target_feature = "sse2", not(feature = "scalar-math")))]
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct Vec4(pub(crate) __m128);
+
+#[cfg(all(target_feature = "sse2", not(feature = "scalar-math")))]
+impl_vec4!(vec4, Vec2, Vec3, Vec4, f32, Vec4Mask, __m128);
+
+impl From<Vec4> for Vec3A {
+    /// Creates a `Vec3A` from the `x`, `y` and `z` elements of the `$vec4`, discarding `z`.
+    ///
+    /// On architectures where SIMD is supported such as SSE2 on x86_64 this conversion is a noop.
+    #[inline]
+    fn from(v: Vec4) -> Self {
+        Self(v.0.into())
+    }
+}
+
+/// A 4-dimensional `f64` vector.
+#[cfg(doc)]
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct DVec4 {
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    pub w: f64,
+}
+
+type XYZWF64 = XYZW<f64>;
+
+#[cfg(not(doc))]
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct DVec4(pub(crate) XYZWF64);
+
+impl_vec4!(dvec4, DVec2, DVec3, DVec4, f64, DVec4Mask, XYZWF64);
 
 #[test]
 fn test_vec4_private() {
