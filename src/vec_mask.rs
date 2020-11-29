@@ -1,4 +1,6 @@
-use crate::vector_traits::{MaskVector, MaskVector2, MaskVector3, MaskVector4, MaskVectorConsts};
+use crate::core::vector_traits::{
+    MaskVector, MaskVector2, MaskVector3, MaskVector4, MaskVectorConsts,
+};
 use core::{cmp::Ordering, hash};
 use core::{fmt, ops::*};
 
@@ -131,7 +133,6 @@ macro_rules! impl_vecnmask_traits {
 #[macro_use]
 macro_rules! impl_vec2mask {
     ($vec2mask:ident, $t:ty, $inner:ident) => {
-
         #[cfg(not(doc))]
         #[derive(Clone, Copy)]
         #[repr(C)]
@@ -182,7 +183,6 @@ macro_rules! impl_vec2mask {
 #[macro_use]
 macro_rules! impl_vec3mask {
     ($vec3mask:ident, $t:ty, $inner:ident) => {
-
         #[cfg(not(doc))]
         #[derive(Clone, Copy)]
         #[repr(C)]
@@ -240,7 +240,6 @@ macro_rules! impl_vec3mask {
 #[macro_use]
 macro_rules! impl_vec4mask {
     ($vec4mask:ident, $t:ty, $inner:ident) => {
-
         #[cfg(not(doc))]
         #[derive(Clone, Copy)]
         #[repr(C)]
@@ -303,7 +302,6 @@ macro_rules! impl_vec4mask {
     };
 }
 
-
 // Vec2Mask ///////////////////////////////////////////////////////////////////////////////////////
 
 type XYU32 = crate::XY<u32>;
@@ -318,7 +316,6 @@ pub struct Vec2Mask(u32, u32);
 
 impl_vec2mask!(Vec2Mask, u32, XYU32);
 
-
 // Vec3Mask ///////////////////////////////////////////////////////////////////////////////////////
 
 type XYZU32 = crate::XYZ<u32>;
@@ -330,7 +327,6 @@ type XYZU32 = crate::XYZ<u32>;
 pub struct Vec3Mask(pub(crate) XYZU32);
 
 impl_vec3mask!(Vec3Mask, u32, XYZU32);
-
 
 // Vec3AMask //////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,7 +1,7 @@
 #[cfg(feature = "num-traits")]
 use num_traits::Float;
 
-use crate::vector_traits::*;
+use crate::core::vector_traits::*;
 use crate::{DVec2Mask, DVec3};
 use crate::{Vec2Mask, Vec3, XY};
 use core::{cmp::Ordering, f32, fmt, ops::*};
@@ -634,7 +634,6 @@ pub struct Vec2 {
 }
 
 impl_vec2!(vec2, Vec2, Vec3, f32, Vec2Mask, XYF32);
-
 
 type XYF64 = XY<f64>;
 
