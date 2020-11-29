@@ -171,7 +171,7 @@ The minimum supported version of Rust for `glam` is `1.36.0`.
 mod macros;
 
 mod core;
-mod swizzles;
+pub mod swizzles;
 mod vec2;
 mod vec3;
 mod vec4;
